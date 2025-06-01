@@ -56,44 +56,58 @@ const registerUser = asynchandler( async (req, res) => {
 
 } )
 
-const loginUser = asynchandler (async(req,res)=>{
-    //req body ->data
-    // check username and email
-    // find user
-    //check password
-    // access token and refresh token
-    //send cookies
+const loginUser = asynchandler(async (req, res) => {
+  const { email, password } = req.body;
+  console.log("email: ", email);
 
-    const { email, password}= req.body
+  if (!email) {
+    throw new apierror(400, "Email is required");
+  }
 
-    if(!email){
-        throw new apierror(400, "username or email is required")
-    }
-        const user =await User.findOne({email })
-    if (!user) {
-        throw new apierror (404, "the user is not registered")   
-    }
-    const isPasswordvalid= await user.isPasswordCorrect(password)
-    if (!isPasswordvalid) {
-        throw new apierror (401, "password is incorrect")      
-    }
-   
+  const user = await User.findOne({ email });
+  if (!user) {
+    throw new apierror(404, "User not registered");
+  }
 
-   const loggendUser= await User.findById(user._id).
-   select("-password ")
+  const isPasswordValid = await user.isPasswordCorrect(password);
+  if (!isPasswordValid) {
+    throw new apierror(401, "Incorrect password");
+  }
 
-   return res.status(200)
-   .json(
-        new apiresponse(
-                200,
-                {
-                    user: loggendUser
-                },
-  
-                "user loggend sucessfully"
-            ))
-})
+  // Generate tokens
+  const accessToken = user.generateAccessToken(); // Assume this method exists
+  const refreshToken = user.generateRefreshToken();
 
+  // Save refreshToken to user in DB (optional)
+  user.refreshToken = refreshToken;
+  await user.save({ validateBeforeSave: false });
+
+  // Set cookies
+  const options = {
+    httpOnly: true,
+    secure: true, // Enable in production (HTTPS)
+    sameSite: "strict",
+  };
+
+  res
+    .status(200)
+    .cookie("accessToken", accessToken, options)
+    .cookie("refreshToken", refreshToken, options)
+    .json(
+      new apiresponse(
+        200,
+        {
+          user: {
+            _id: user._id,
+            email: user.email,
+            // Include other non-sensitive fields
+          },
+          accessToken, // Optional: Send token in response too
+        },
+        "Login successful"
+      )
+    );
+});
 
 
 export {

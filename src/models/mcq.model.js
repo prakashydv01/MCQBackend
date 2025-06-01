@@ -1,7 +1,12 @@
 import mongoose from 'mongoose';
 
 const mcqSchema = new mongoose.Schema({
-  question: { type: String, required: true, trim: true },
+  question: { 
+    type: String,
+    required: true, 
+    trim: true 
+  },
+  
   options: { 
     type: [String], 
     required: true,
@@ -23,8 +28,7 @@ const mcqSchema = new mongoose.Schema({
   category: { 
     type: String, 
     required: true,
-    enum: ['Anatomy', 'Physiology', 'Pharmacology', 'Other'],
-    default: 'Other'
+    
   },
   difficulty: { 
     type: String, 
