@@ -57,6 +57,8 @@ const registerUser = asynchandler( async (req, res) => {
 } )
 
 const loginUser = asynchandler(async (req, res) => {
+console.log("Login request received");
+
   const { email, password } = req.body;
   console.log("email: ", email);
 

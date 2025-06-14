@@ -1,18 +1,23 @@
 import mongoose from 'mongoose';
-import {DB_NAME} from '../constant.js'
+import { DB_NAME1, DB_NAME2 } from '../constant.js';
 
+// Create separate connections
+const primaryDB = mongoose.createConnection(`${process.env.MONGODB_URI}/${DB_NAME1}`);
+const secondaryDB = mongoose.createConnection(`${process.env.MONGODB_URI}/${DB_NAME2}`);
 
-// Connect to MongoDB
+// Connection function
 const connectDB = async () => {
   try {
-    const connectionInstance=await mongoose.connect(`${process.env.MONGODB_URI}/${DB_NAME}`);
-      
-    console.log('\nMongoDB connected', `${connectionInstance.connection.host}`);
+    // Wait for both connections to establish
+    await primaryDB.asPromise();
+    await secondaryDB.asPromise();
+    
+    console.log(`🟢 Primary DB connected: ${primaryDB.name}`);
+    console.log(`🟢 Secondary DB connected: ${secondaryDB.name}`);
   } catch (error) {
-    console.error('MongoDB connection error:', error);
+    console.error('❌ DB connection error:', error);
     process.exit(1);
   }
-  
-}
+};
 
-export default connectDB;
+export  { connectDB, primaryDB, secondaryDB };
