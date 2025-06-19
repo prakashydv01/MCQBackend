@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import { secondaryDB } from '../db/connection.js';
+
 
 const modelSchema = new mongoose.Schema({
   title: { 

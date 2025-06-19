@@ -1,4 +1,4 @@
-import {connectDB} from "./db/connection.js";
+import connectDB from "./db/connection.js";
 import { app } from "./app.js";
 import dotenv from "dotenv";
 
